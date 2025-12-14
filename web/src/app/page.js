@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import AuthPanel from "@/components/auth-panel";
-import TaskForm from "@/components/task-form";
+import InlineTaskInput from "@/components/inline-task-input";
 import TasksList from "@/components/tasks-list";
 
 export default async function HomePage({ searchParams }) {
@@ -106,11 +106,7 @@ export default async function HomePage({ searchParams }) {
       {/* Tasks List */}
       <div className="flex-1 bg-white overflow-y-auto">
         <TasksList tasks={tasks || []} showNotes={showNotes} />
-      </div>
-
-      {/* Task Form - Fixed at bottom */}
-      <div className="sticky bottom-0">
-        <TaskForm category={category} />
+        <InlineTaskInput category={category} />
       </div>
     </main>
   );

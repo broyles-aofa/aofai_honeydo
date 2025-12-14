@@ -54,55 +54,45 @@ export default function TasksList({ tasks, showNotes }) {
     return "bg-white border-gray-300";
   };
 
-  if (tasks.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-400">
-        <p className="text-base">No items yet</p>
-        <p className="text-xs mt-2">Add one below to get started!</p>
-        <p className="text-xs mt-4 text-gray-300">💡 Tap checkbox to change status</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="divide-y divide-gray-100">
+    <div className="divide-y divide-gray-50">
       {tasks.map((task) => (
         <div
           key={task.id}
-          className="p-4 hover:bg-gray-50 transition-colors"
+          className="py-2 px-3 hover:bg-gray-50 transition-colors"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2">
             {/* Checkbox */}
             <button
               onClick={() => handleStatusToggle(task.id, task.status)}
               disabled={isPending}
               className={`
-                flex-shrink-0 w-7 h-7 rounded border-2 flex items-center justify-center
-                transition-all text-lg font-bold
+                flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center
+                transition-all text-sm font-bold
                 ${getCheckboxStyles(task.status)}
                 ${isPending ? "opacity-50" : "hover:scale-110"}
               `}
-              style={{ minWidth: "28px", minHeight: "28px" }}
+              style={{ minWidth: "20px", minHeight: "20px" }}
             >
               {getCheckboxIcon(task.status)}
             </button>
 
             {/* Task content */}
             <div className="flex-1 min-w-0">
-              <p className={`text-base ${getStatusStyles(task.status)}`}>
+              <p className={`text-sm ${getStatusStyles(task.status)}`}>
                 {task.title}
               </p>
 
               {/* Show notes if toggle is on and notes exist */}
               {showNotes && task.notes && (
-                <p className="text-xs text-gray-600 mt-1 pl-1">
-                  📝 {task.notes}
+                <p className="text-xs text-gray-500 mt-0.5 pl-1">
+                  {task.notes}
                 </p>
               )}
 
               {/* Show who completed it */}
               {task.status === "done" && task.completed_by_email && (
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 mt-0.5">
                   ✓ by {task.completed_by_email.split("@")[0]}
                 </p>
               )}
@@ -112,8 +102,7 @@ export default function TasksList({ tasks, showNotes }) {
             <button
               onClick={() => handleDelete(task.id)}
               disabled={isPending}
-              className="flex-shrink-0 text-gray-400 hover:text-red-500 text-xl px-2"
-              style={{ minWidth: "44px", minHeight: "44px" }}
+              className="flex-shrink-0 text-gray-300 hover:text-red-400 text-lg px-1"
             >
               ×
             </button>
