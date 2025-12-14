@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { createTask } from "@/app/actions";
 
 export default function InlineTaskInput({ category, showNotes }) {
@@ -9,14 +9,15 @@ export default function InlineTaskInput({ category, showNotes }) {
   const [value, setValue] = useState("");
   const [notes, setNotes] = useState("");
   const inputRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Auto-focus on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = useCallback((e) => {
+    if (e) e.preventDefault();
     if (!value.trim()) return;
 
     setError(null);
@@ -31,15 +32,39 @@ export default function InlineTaskInput({ category, showNotes }) {
         await createTask(formData);
         setValue("");
         setNotes("");
-        inputRef.current?.focus();
+        // Focus after a small delay to ensure React has updated
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 0);
       } catch (err) {
         setError(err.message);
       }
     });
+  }, [value, notes, category, startTransition]);
+
+  // Save when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        if (value.trim()) {
+          handleSubmit();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value, handleSubmit]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
-    <div className="border-t border-gray-100" data-inline-input>
+    <div ref={containerRef} className="border-t border-gray-100" data-inline-input>
       <form onSubmit={handleSubmit} className="py-1 px-3">
         <div className="flex items-center gap-2">
           {/* Empty checkbox placeholder */}
@@ -52,6 +77,7 @@ export default function InlineTaskInput({ category, showNotes }) {
               type="text"
               value={value}
               onChange={(e) => setValue(e.target.value)}
+              onKeyDown={handleKeyDown}
               disabled={isPending}
               placeholder="Type here..."
               className="w-full text-sm border-none outline-none bg-transparent text-gray-900 placeholder-gray-400 py-0.5"
@@ -64,6 +90,7 @@ export default function InlineTaskInput({ category, showNotes }) {
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
+                onKeyDown={handleKeyDown}
                 disabled={isPending}
                 placeholder="Add note..."
                 className="w-full text-xs border-none outline-none bg-transparent text-gray-500 placeholder-gray-300 py-0.5"
