@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import AuthPanel from "@/components/auth-panel";
 import TaskForm from "@/components/task-form";
@@ -44,7 +45,7 @@ export default async function HomePage({ searchParams }) {
 
           {/* Category Tabs */}
           <div className="flex gap-2 mb-3">
-            <a
+            <Link
               href="/?category=home"
               className={`
                 flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
@@ -56,8 +57,8 @@ export default async function HomePage({ searchParams }) {
               `}
             >
               🏠 Home Tasks
-            </a>
-            <a
+            </Link>
+            <Link
               href="/?category=grocery"
               className={`
                 flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
@@ -69,17 +70,17 @@ export default async function HomePage({ searchParams }) {
               `}
             >
               🛒 Grocery Lists
-            </a>
+            </Link>
           </div>
 
           {/* Show Notes Toggle */}
           <div className="flex justify-center">
-            <a
+            <Link
               href={`/?category=${category}&showNotes=${!showNotes}`}
               className="text-sm text-gray-600 hover:text-gray-900 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors"
             >
               {showNotes ? "👁️ Hide Notes" : "👁️ Show Notes"}
-            </a>
+            </Link>
           </div>
         </div>
       </div>
