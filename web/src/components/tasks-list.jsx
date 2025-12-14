@@ -57,8 +57,9 @@ export default function TasksList({ tasks, showNotes }) {
   if (tasks.length === 0) {
     return (
       <div className="text-center py-12 text-gray-400">
-        <p className="text-lg">No tasks yet</p>
-        <p className="text-sm mt-2">Add one below to get started!</p>
+        <p className="text-base">No items yet</p>
+        <p className="text-xs mt-2">Add one below to get started!</p>
+        <p className="text-xs mt-4 text-gray-300">💡 Tap checkbox to change status</p>
       </div>
     );
   }
@@ -88,13 +89,13 @@ export default function TasksList({ tasks, showNotes }) {
 
             {/* Task content */}
             <div className="flex-1 min-w-0">
-              <p className={`text-lg ${getStatusStyles(task.status)}`}>
+              <p className={`text-base ${getStatusStyles(task.status)}`}>
                 {task.title}
               </p>
 
               {/* Show notes if toggle is on and notes exist */}
               {showNotes && task.notes && (
-                <p className="text-sm text-gray-600 mt-1 pl-1">
+                <p className="text-xs text-gray-600 mt-1 pl-1">
                   📝 {task.notes}
                 </p>
               )}

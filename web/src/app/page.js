@@ -31,7 +31,12 @@ export default async function HomePage({ searchParams }) {
     .eq("category", category)
     .order("position", { ascending: true });
 
-  const categoryLabel = category === "home" ? "Home Tasks" : "Grocery Lists";
+  const categoryLabel =
+    category === "home"
+      ? "Home Tasks"
+      : category === "grocery"
+      ? "Grocery Lists"
+      : "Dinner Menu";
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col max-w-2xl mx-auto">
@@ -48,7 +53,7 @@ export default async function HomePage({ searchParams }) {
             <Link
               href="/?category=home"
               className={`
-                flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
+                flex-1 py-1.5 px-3 rounded-lg text-sm font-medium text-center transition-colors
                 ${
                   category === "home"
                     ? "bg-blue-600 text-white"
@@ -56,12 +61,12 @@ export default async function HomePage({ searchParams }) {
                 }
               `}
             >
-              🏠 Home Tasks
+              🏠 Home
             </Link>
             <Link
               href="/?category=grocery"
               className={`
-                flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
+                flex-1 py-1.5 px-3 rounded-lg text-sm font-medium text-center transition-colors
                 ${
                   category === "grocery"
                     ? "bg-blue-600 text-white"
@@ -69,7 +74,20 @@ export default async function HomePage({ searchParams }) {
                 }
               `}
             >
-              🛒 Grocery Lists
+              🛒 Grocery
+            </Link>
+            <Link
+              href="/?category=dinner"
+              className={`
+                flex-1 py-1.5 px-3 rounded-lg text-sm font-medium text-center transition-colors
+                ${
+                  category === "dinner"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }
+              `}
+            >
+              🍽️ Dinner
             </Link>
           </div>
 

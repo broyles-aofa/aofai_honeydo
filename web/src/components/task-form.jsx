@@ -8,6 +8,18 @@ export default function TaskForm({ category }) {
   const [error, setError] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
 
+  const getButtonText = () => {
+    if (category === "grocery") return "Add Item";
+    if (category === "dinner") return "Add Menu";
+    return "Add Task";
+  };
+
+  const getPlaceholder = () => {
+    if (category === "grocery") return "Type new item...";
+    if (category === "dinner") return "Type menu item...";
+    return "Type new task...";
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setError(null);
@@ -34,8 +46,8 @@ export default function TaskForm({ category }) {
           name="title"
           required
           disabled={isPending}
-          placeholder="Type new task..."
-          className="w-full text-lg px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder={getPlaceholder()}
+          className="w-full text-lg px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
         />
 
         {showNotes && (
@@ -44,7 +56,7 @@ export default function TaskForm({ category }) {
             disabled={isPending}
             placeholder="Add notes (optional)..."
             rows={2}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
           />
         )}
 
@@ -62,7 +74,7 @@ export default function TaskForm({ category }) {
             disabled={isPending}
             className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {isPending ? "Adding..." : "Add Task"}
+            {isPending ? "Adding..." : getButtonText()}
           </button>
         </div>
 

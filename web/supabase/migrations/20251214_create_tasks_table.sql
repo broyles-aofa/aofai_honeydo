@@ -7,7 +7,7 @@ create table if not exists public.tasks (
   title text not null,
   notes text,
   status text not null default 'open' check (status in ('open', 'in_progress', 'done')),
-  category text not null default 'home' check (category in ('home', 'grocery', 'dinner')),
+  category text not null default 'home' check (category in ('home', 'grocery')),
   created_by uuid not null references auth.users (id) on delete cascade,
   completed_by uuid references auth.users (id) on delete set null,
   completed_by_email text,
