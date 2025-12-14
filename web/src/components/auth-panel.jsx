@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { signOut } from "@/app/actions";
 
 export default function AuthPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
@@ -49,17 +51,20 @@ export default function AuthPanel() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
+    startTransition(async () => {
+      await signOut();
+      router.refresh();
+    });
   };
 
   if (user) {
     return (
       <button
         onClick={handleSignOut}
-        className="rounded-md border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        disabled={isPending}
+        className="rounded-md border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
       >
-        Sign Out
+        {isPending ? "Signing out..." : "Sign Out"}
       </button>
     );
   }

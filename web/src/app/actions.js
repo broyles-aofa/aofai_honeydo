@@ -129,3 +129,10 @@ export async function updateTask(taskId, formData) {
 
   revalidatePath("/");
 }
+
+// Sign out user (proper server-side sign out)
+export async function signOut() {
+  const supabase = await createServerSupabaseClient();
+  await supabase.auth.signOut();
+  revalidatePath("/");
+}
