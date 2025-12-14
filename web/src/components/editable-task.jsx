@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useRef, useTransition, useEffect, useCallback } from "react";
+import { useState, useRef, useTransition } from "react";
 import { updateTask, updateTaskStatus, deleteTask } from "@/app/actions";
 
 export default function EditableTask({ task, showNotes }) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes || "");
   const [isPending, startTransition] = useTransition();
   const titleInputRef = useRef(null);
-  const containerRef = useRef(null);
+  const notesInputRef = useRef(null);
+
+  const isEditing = isEditingTitle || isEditingNotes;
 
   const getCheckboxIcon = (status) => {
     if (status === "done") return "✓";
@@ -35,11 +38,13 @@ export default function EditableTask({ task, showNotes }) {
     });
   };
 
-  const handleSave = useCallback(() => {
+  const handleSave = () => {
+    setIsEditingTitle(false);
+    setIsEditingNotes(false);
+
     if (!title.trim()) {
       setTitle(task.title);
       setNotes(task.notes || "");
-      setIsEditing(false);
       return;
     }
 
@@ -50,26 +55,23 @@ export default function EditableTask({ task, showNotes }) {
       
       startTransition(async () => {
         await updateTask(task.id, formData);
-        setIsEditing(false);
       });
-    } else {
-      setIsEditing(false);
     }
-  }, [title, notes, task.title, task.notes, task.id, startTransition]);
+  };
 
-  // Handle clicks outside to save
-  useEffect(() => {
-    if (!isEditing) return;
+  const handleTitleClick = (e) => {
+    e.stopPropagation();
+    setIsEditingTitle(true);
+    setIsEditingNotes(false);
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
 
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        handleSave();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isEditing, handleSave]);
+  const handleNotesClick = (e) => {
+    e.stopPropagation();
+    setIsEditingTitle(false);
+    setIsEditingNotes(true);
+    setTimeout(() => notesInputRef.current?.focus(), 0);
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -79,15 +81,8 @@ export default function EditableTask({ task, showNotes }) {
     if (e.key === "Escape") {
       setTitle(task.title);
       setNotes(task.notes || "");
-      setIsEditing(false);
-    }
-  };
-
-  const handleClick = (e) => {
-    e.stopPropagation();
-    if (!isEditing) {
-      setIsEditing(true);
-      setTimeout(() => titleInputRef.current?.focus(), 0);
+      setIsEditingTitle(false);
+      setIsEditingNotes(false);
     }
   };
 
@@ -98,11 +93,7 @@ export default function EditableTask({ task, showNotes }) {
   };
 
   return (
-    <div 
-      ref={containerRef}
-      className="py-1 px-3 hover:bg-gray-50 transition-colors border-b border-gray-50" 
-      data-task-editable
-    >
+    <div className="py-1 px-3 hover:bg-gray-50 transition-colors border-b border-gray-50">
       <div className="flex items-center gap-2">
         {/* Checkbox */}
         <button
@@ -121,46 +112,54 @@ export default function EditableTask({ task, showNotes }) {
 
         {/* Task content */}
         <div className="flex-1 min-w-0">
-          {isEditing ? (
-            <div onClick={(e) => e.stopPropagation()}>
+          {/* Title */}
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={handleKeyDown}
+              className="w-full text-sm border-none outline-none bg-transparent text-gray-900 py-0.5"
+            />
+          ) : (
+            <p 
+              onClick={handleTitleClick}
+              className={`text-sm cursor-text ${getStatusStyles(task.status)}`}
+            >
+              {task.title}
+            </p>
+          )}
+
+          {/* Notes */}
+          {showNotes && (
+            isEditingNotes ? (
               <input
-                ref={titleInputRef}
+                ref={notesInputRef}
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
-                className="w-full text-sm border-none outline-none bg-transparent text-gray-900 py-0.5"
+                placeholder="Add note..."
+                className="w-full text-xs border-none outline-none bg-transparent text-gray-500 placeholder-gray-300 py-0.5"
               />
-              {showNotes && (
-                <input
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  onBlur={handleSave}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Add note..."
-                  className="w-full text-xs border-none outline-none bg-transparent text-gray-500 placeholder-gray-300 py-0.5"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
-            </div>
-          ) : (
-            <div onClick={handleClick} className="cursor-text">
-              <p className={`text-sm ${getStatusStyles(task.status)}`}>
-                {task.title}
+            ) : (
+              <p 
+                onClick={handleNotesClick}
+                className="text-xs text-blue-500 mt-0.5 cursor-pointer hover:text-blue-600"
+              >
+                {task.notes || "(click to add note)"}
               </p>
-              {showNotes && (
-                <p className="text-xs text-gray-500 mt-0.5 cursor-text">
-                  {task.notes || "(click to add note)"}
-                </p>
-              )}
-              {task.status === "done" && task.completed_by_email && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  ✓ by {task.completed_by_email.split("@")[0]}
-                </p>
-              )}
-            </div>
+            )
+          )}
+
+          {/* Completion info */}
+          {task.status === "done" && task.completed_by_email && !isEditing && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              ✓ by {task.completed_by_email.split("@")[0]}
+            </p>
           )}
         </div>
 
@@ -176,4 +175,3 @@ export default function EditableTask({ task, showNotes }) {
     </div>
   );
 }
-
