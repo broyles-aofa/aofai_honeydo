@@ -40,7 +40,8 @@ export default function AuthPanel() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: `${window.location.origin}/`,
+          skipBrowserRedirect: false,
         },
       });
       if (error) throw error;
@@ -52,8 +53,15 @@ export default function AuthPanel() {
 
   const handleSignOut = async () => {
     startTransition(async () => {
-      await signOut();
-      router.refresh();
+      try {
+        await signOut();
+        // redirect() will be called in the server action, which throws NEXT_REDIRECT
+      } catch (error) {
+        // NEXT_REDIRECT is expected behavior, other errors should be handled
+        if (!error?.digest?.startsWith('NEXT_REDIRECT')) {
+          console.error('Sign out error:', error);
+        }
+      }
     });
   };
 
