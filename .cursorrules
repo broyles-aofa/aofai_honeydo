@@ -1,0 +1,191 @@
+# Cursor AI Rules for AOFA Projects
+# This file configures Cursor AI behavior for all AOFA template apps
+
+## Project Context
+- Organization: AOFA (brian@aofa.ai)
+- Stack: Next.js 15 + Supabase + Vercel (RAIL Stack simplified)
+- Tech: JavaScript, React Server Components, Tailwind CSS
+- Deployment: Vercel (production) + GitHub (version control)
+- Database: Supabase (PostgreSQL + Auth)
+
+## Critical Files to Read First
+On every new conversation, ALWAYS read these files first:
+1. CREDENTIALS.md - Project-specific credentials and URLs
+2. AOFA_TEMPLATE_SYSTEM.md - The AOFA development process
+3. PATTERNS.md - Code patterns and standards
+4. web/supabase/schema.sql - Database structure
+
+## Code Standards
+
+### JavaScript/React
+- Use modern JavaScript (ES6+)
+- Prefer functional components with hooks
+- Use React Server Components by default
+- Client components only when needed (useState, useEffect, etc.)
+- Use "use client" directive at top of client components
+- Use "use server" directive for server actions
+
+### File Organization
+- Server Actions: web/src/app/actions.js
+- Components: web/src/components/{component-name}.jsx
+- Supabase Client: web/src/lib/supabase/client.js (client-side)
+- Supabase Server: web/src/lib/supabase/server.js (server-side)
+- Styles: Tailwind CSS in className attributes
+
+### Naming Conventions
+- Files: kebab-case (e.g., `user-profile.jsx`)
+- Components: PascalCase (e.g., `UserProfile`)
+- Functions: camelCase (e.g., `getUserData`)
+- Database tables: snake_case (e.g., `user_profiles`)
+- Environment variables: SCREAMING_SNAKE_CASE (e.g., `NEXT_PUBLIC_SUPABASE_URL`)
+
+### Database Patterns
+- All tables must have: id (uuid), created_at, updated_at
+- Use Row Level Security (RLS) on all tables
+- User-specific data: add user_id column with foreign key to auth.users
+- Migrations go in: web/supabase/migrations/YYYYMMDD_description.sql
+- Migration naming: date prefix + descriptive name
+
+### Authentication
+- Use Supabase Auth (email/password by default)
+- Server-side auth: Use createServerSupabaseClient()
+- Client-side auth: Use createBrowserSupabaseClient()
+- Always check auth state before sensitive operations
+- Use RLS policies instead of manual auth checks where possible
+
+### Server Actions
+- Place all server actions in web/src/app/actions.js
+- Always use "use server" directive
+- Always validate user authentication
+- Always revalidatePath() after mutations
+- Return errors as thrown exceptions (will be caught by client)
+
+### Component Patterns
+- Keep components small and focused
+- Extract reusable logic to custom hooks
+- Use Tailwind for styling (no CSS modules)
+- Prefer composition over prop drilling
+- Use transitions for async actions (useTransition)
+
+### Error Handling
+- Use try/catch in server actions
+- Show user-friendly error messages
+- Log errors to console (will appear in Vercel logs)
+- Never expose sensitive errors to users
+
+## Deployment Rules
+
+### Git Workflow
+- NEVER commit .env files (except env.example)
+- NEVER commit CREDENTIALS.md
+- ALWAYS verify git config before commits (brian@aofa.ai)
+- Use descriptive commit messages
+- Push to main branch for production deploys
+
+### Vercel Deployment
+- Deploy from project root (not /web)
+- Vercel automatically detects /web as root directory
+- Use `vercel deploy --prod --yes` for production
+- Environment variables stored in Vercel, not in code
+- Pull env vars with `vercel env pull web/.env.local --yes`
+
+### Database Migrations
+- Test migrations locally first (optional)
+- Apply to production with `supabase db push`
+- Never edit old migrations, always create new ones
+- Include rollback plan in migration comments
+
+## AI Behavior
+
+### When Starting a Task
+1. Read CREDENTIALS.md to understand the specific project
+2. Check existing code patterns before creating new ones
+3. Ask clarifying questions if requirements are unclear
+4. Propose solution before implementing (unless trivial)
+
+### Code Generation
+- Generate complete, working code (not pseudocode)
+- Include all necessary imports
+- Add helpful comments for complex logic
+- Follow the patterns in PATTERNS.md
+- Prefer editing existing files over creating new ones
+
+### Problem Solving
+- Use existing tools (grep, codebase_search) to understand context
+- Check Vercel logs for deployment issues
+- Check Supabase logs for database issues
+- Suggest debugging steps, not just guesses
+
+### Communication
+- Be concise but complete
+- Use code blocks with proper syntax highlighting
+- Explain non-obvious decisions
+- Don't repeat instructions the user already knows
+
+## Technology Preferences
+
+### Always Use
+- Next.js App Router (not Pages Router)
+- React Server Components (default)
+- Supabase for database operations
+- Tailwind CSS for styling
+- Vercel for deployment
+
+### Avoid
+- External state management (use React state + server actions)
+- CSS-in-JS libraries (use Tailwind)
+- Complex build configurations (use Next.js defaults)
+- Client-side data fetching (use Server Components)
+- Over-engineering (keep it simple)
+
+## Testing
+- Manual testing in browser is primary method
+- Use Vercel preview deployments for feature testing
+- Test authentication flows thoroughly
+- Test on mobile viewport (responsive design required)
+
+## Security
+- Never expose API keys in client code
+- Use NEXT_PUBLIC_ prefix only for truly public values
+- Always validate user input
+- Use Supabase RLS for data access control
+- Never trust client-side data (validate server-side)
+
+## Performance
+- Use Server Components for data fetching
+- Minimize client-side JavaScript
+- Lazy load images and heavy components
+- Keep bundle size small
+- Use Vercel Analytics to monitor performance
+
+## Documentation
+- Update README.md when adding major features
+- Document complex logic in code comments
+- Keep CREDENTIALS.md up to date with URLs
+- Update PATTERNS.md when establishing new patterns
+
+## Support
+If stuck:
+1. Check Vercel deployment logs: `vercel logs`
+2. Check Supabase dashboard for database errors
+3. Read Next.js docs: https://nextjs.org/docs
+4. Read Supabase docs: https://supabase.com/docs
+5. Ask user for clarification
+
+## Success Criteria
+Code is successful when:
+- ✅ Builds without errors (`npm run build`)
+- ✅ No linter warnings
+- ✅ Works on desktop and mobile
+- ✅ Authenticated features require auth
+- ✅ Deploys to Vercel successfully
+- ✅ Data persists to Supabase correctly
+
+---
+
+Remember: The goal is to ship production-ready apps quickly. 
+Favor simplicity, standard patterns, and working code over clever solutions.
+
+Last Updated: December 14, 2025
+Version: 1.0
+

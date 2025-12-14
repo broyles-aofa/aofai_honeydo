@@ -1,0 +1,14 @@
+Read START_HERE.md, CREDENTIALS.md, AOFA_TEMPLATE_SYSTEM.md, and PATTERNS.md.
+
+This is an AOFA template app using:
+- Next.js 15 (React Server Components)
+- Supabase (PostgreSQL + Auth)
+- Vercel deployment
+- Domain: YOURAPP.aofa.ai
+
+The Hello World app (notes CRUD) is working and deployed.
+
+I want to build: [DESCRIBE YOUR APP IDEA HERE]
+
+First, confirm you understand the stack and current working state, then help me plan the features I need to add.
+
