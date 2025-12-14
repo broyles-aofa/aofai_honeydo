@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { createTask } from "@/app/actions";
 
 export default function InlineTaskInput({ category, showNotes }) {
@@ -9,6 +9,21 @@ export default function InlineTaskInput({ category, showNotes }) {
   const [value, setValue] = useState("");
   const [notes, setNotes] = useState("");
   const inputRef = useRef(null);
+
+  // Keep input responsive
+  useEffect(() => {
+    const handleClick = (e) => {
+      // If click is outside any editable task, focus this input
+      if (!e.target.closest('[data-task-editable]')) {
+        const isInputArea = e.target.closest('[data-inline-input]');
+        if (isInputArea) {
+          inputRef.current?.focus();
+        }
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,7 +49,7 @@ export default function InlineTaskInput({ category, showNotes }) {
   };
 
   return (
-    <div className="border-t border-gray-100">
+    <div className="border-t border-gray-100" data-inline-input>
       <form onSubmit={handleSubmit} className="py-1 px-3">
         <div className="flex items-center gap-2">
           {/* Empty checkbox placeholder */}
