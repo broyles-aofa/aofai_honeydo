@@ -106,7 +106,7 @@ export default async function HomePage({ searchParams }) {
       {/* Tasks List */}
       <div className="flex-1 bg-white overflow-y-auto">
         <TasksList tasks={tasks || []} showNotes={showNotes} />
-        <InlineTaskInput category={category} />
+        <InlineTaskInput category={category} showNotes={showNotes} />
       </div>
     </main>
   );

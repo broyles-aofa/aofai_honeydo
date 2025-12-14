@@ -59,20 +59,20 @@ export default function TasksList({ tasks, showNotes }) {
       {tasks.map((task) => (
         <div
           key={task.id}
-          className="py-2 px-3 hover:bg-gray-50 transition-colors"
+          className="py-1 px-3 hover:bg-gray-50 transition-colors"
         >
-          <div className="flex items-start gap-2">
+          <div className="flex items-center gap-2">
             {/* Checkbox */}
             <button
               onClick={() => handleStatusToggle(task.id, task.status)}
               disabled={isPending}
               className={`
-                flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center
-                transition-all text-sm font-bold
+                flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center
+                transition-all text-xs font-bold
                 ${getCheckboxStyles(task.status)}
                 ${isPending ? "opacity-50" : "hover:scale-110"}
               `}
-              style={{ minWidth: "20px", minHeight: "20px" }}
+              style={{ minWidth: "16px", minHeight: "16px" }}
             >
               {getCheckboxIcon(task.status)}
             </button>
