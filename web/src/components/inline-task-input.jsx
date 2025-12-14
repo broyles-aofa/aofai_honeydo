@@ -10,19 +10,9 @@ export default function InlineTaskInput({ category, showNotes }) {
   const [notes, setNotes] = useState("");
   const inputRef = useRef(null);
 
-  // Keep input responsive
+  // Auto-focus on mount
   useEffect(() => {
-    const handleClick = (e) => {
-      // If click is outside any editable task, focus this input
-      if (!e.target.closest('[data-task-editable]')) {
-        const isInputArea = e.target.closest('[data-inline-input]');
-        if (isInputArea) {
-          inputRef.current?.focus();
-        }
-      }
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
+    inputRef.current?.focus();
   }, []);
 
   const handleSubmit = (e) => {
