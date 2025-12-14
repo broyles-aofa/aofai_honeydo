@@ -1,79 +1,98 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import AuthPanel from "@/components/auth-panel";
-import NotesList from "@/components/notes-list";
-import NoteForm from "@/components/note-form";
+import TaskForm from "@/components/task-form";
+import TasksList from "@/components/tasks-list";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }) {
   const supabase = await createServerSupabaseClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
     return (
-      <main className="container mx-auto max-w-2xl px-4 py-16">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            🏗️ AOFA Template
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Hello World app to verify your stack works!
-          </p>
-        </div>
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <AuthPanel />
       </main>
     );
   }
 
-  // Get user's notes
-  const { data: notes } = await supabase
-    .from("notes")
+  // Get category from URL or default to 'home'
+  const params = await searchParams;
+  const category = params?.category || "home";
+  const showNotes = params?.showNotes === "true";
+
+  // Fetch tasks for the selected category
+  const { data: tasks } = await supabase
+    .from("tasks")
     .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .eq("category", category)
+    .order("position", { ascending: true });
+
+  const categoryLabel = category === "home" ? "Home Tasks" : "Grocery Lists";
 
   return (
-    <main className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            📝 Notes
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Signed in as {user.email}
-          </p>
+    <main className="min-h-screen bg-gray-50 flex flex-col max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">HoneyDo List</h1>
+            <AuthPanel />
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex gap-2 mb-3">
+            <a
+              href="/?category=home"
+              className={`
+                flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
+                ${
+                  category === "home"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }
+              `}
+            >
+              🏠 Home Tasks
+            </a>
+            <a
+              href="/?category=grocery"
+              className={`
+                flex-1 py-3 px-4 rounded-lg font-medium text-center transition-colors
+                ${
+                  category === "grocery"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }
+              `}
+            >
+              🛒 Grocery Lists
+            </a>
+          </div>
+
+          {/* Show Notes Toggle */}
+          <div className="flex justify-center">
+            <a
+              href={`/?category=${category}&showNotes=${!showNotes}`}
+              className="text-sm text-gray-600 hover:text-gray-900 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {showNotes ? "👁️ Hide Notes" : "👁️ Show Notes"}
+            </a>
+          </div>
         </div>
-        <AuthPanel />
       </div>
 
-      <div className="mb-8">
-        <NoteForm />
+      {/* Tasks List */}
+      <div className="flex-1 bg-white overflow-y-auto">
+        <TasksList tasks={tasks || []} showNotes={showNotes} />
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          Your Notes
-        </h2>
-        <NotesList notes={notes || []} />
-      </div>
-
-      <div className="mt-12 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-        <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-2">
-          ✅ Your Stack is Working!
-        </h3>
-        <ul className="space-y-1 text-sm text-green-800 dark:text-green-200">
-          <li>✓ Next.js rendering pages</li>
-          <li>✓ Supabase authentication active</li>
-          <li>✓ Database connected and working</li>
-          <li>✓ Row Level Security protecting data</li>
-          <li>✓ Server Actions handling mutations</li>
-          <li>✓ Ready to build your app!</li>
-        </ul>
-        <p className="mt-4 text-sm text-green-700 dark:text-green-300">
-          <strong>Next Step:</strong> Open in Cursor and say &quot;I want to build [your app idea]&quot;
-        </p>
+      {/* Task Form - Fixed at bottom */}
+      <div className="sticky bottom-0">
+        <TaskForm category={category} />
       </div>
     </main>
   );
 }
-
